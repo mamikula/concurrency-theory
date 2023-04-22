@@ -1,0 +1,24 @@
+
+2. Zaimplementowałem dwa semafory SemaforBinarny i ZepsutySemaforBinarny który w metodach P() i V() korzysta z if zamiast while.
+Napisałem metode która sprawdza czy zwiększenie i zmniejszenie licznika tyle samo razy da 0. Wynik wywołania można zobaczyć włączając WyścigTest (katalog test/...).
+Dla SemaforaBinarnego zwracany rezultat wyosi 0 i jest zgodny z oczekiwanym, natomiast w przypadku ZepsutegoSemaforaBinarnego zwracane wyniki są różne lub następuje zawieszenie.
+
+Przypadek pokazujący skąd wynika błąd w działaniu ZepsutegoSemaforaBinarnego:
+    - stan semafora to false
+    - wątek A chce wykonać kolejno operacje V i P
+    - wątek B chce wykonać operację P
+   - B pierwszy wchodzi do bloku synchronized. Widzi, że stan to false i zaczyna czekać
+   - A wtedy wykonuje operację V. Wywołuje przy tym notifyAll, które ma obudzić B.
+   Mogą sie teraz wydarzyć dwa scenariusze(właśnie w zależności od implementacji z if lub while)
+   Zanim B się obudzi i zdązy zająć monitor, A może zacząć operacje P i też chcieć wejść do bloku.
+   W tym momencie oba wątki czekają, ponieważ niewiadomo który wątek wejdzie jako pierwszy, załóżmy że A.
+   Zmiena on stan z 1 na 0, konczy dzialanie i zwalnia monitor. W tym momencie budzi sie watek B i wraca do monitora.
+   Stan nie jest sprawdzany ponownie(implementacja z if zamiast while),
+   wiec watek B blednie zmienia stan z 0 na 0. Taka sytuacja jest sprzeczna z idea dzialania semafora.
+
+3. Czy semafor binarny jest szczególnym przypadkiem semafora ogólnego? Dlaczego?
+Tak, semafor binarny można potraktować jako szczególny przypadek semafora ogólnego.
+Oba rodzaje semaforów przechowują stan i uniemożliwiają zmniejszenie go poniżej zera (wątek chcący zmniejszyć musi czekać).
+W semaforze ogólnym stan może przyjmować dowolne wartości ≥ 0 podczas gdy w semaforze binarnym największą możliwą wartością jest 1,
+a wątki, które próbują to zrobić, muszą czekać.
+Do semafora licznikowego również została zaimplementowana metoda pokazująca jego działanie, można ją uruchomić i zobaczyć działanie w SemaforLicznikowyTest.
